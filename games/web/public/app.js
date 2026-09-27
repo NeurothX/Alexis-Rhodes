@@ -168,9 +168,8 @@
         const memoryGB = Number(navigator.deviceMemory) || 4;
         const cpuThreads = Number(navigator.hardwareConcurrency) || 4;
         const perfilDispositivo = memoryGB >= 8 && cpuThreads >= 8 ? "alto" : memoryGB >= 4 && cpuThreads >= 6 ? "medio" : "ahorro";
-        const n64ConHilos = esN64 && window.crossOriginIsolated === true && typeof window.SharedArrayBuffer === "function" && cpuThreads >= 4;
-        const n64Mode = esN64 ? (localStorage.getItem("alexis-n64-mode") || "turbo") : null;
-        gameBox.innerHTML = `<div class="game-topbar"><span class="playing">Jugando · ${active.name}</span><span>${esN64 ? `<button id="n64-mode" class="secondary" title="Cambia el perfil y reinicia este juego">${n64Mode === "turbo" ? "⚡ N64 Turbo" : "🛠️ N64 Compatible"}</button>` : ""}<button id="gba-fullscreen" class="secondary">⛶ Pantalla completa</button><button id="back" class="secondary">← Catálogo</button></span></div><p class="notice">${esN64 ? `Perfil ${n64Mode === "turbo" ? "Turbo: resolución nativa y efectos ligeros" : "Compatible: conserva más efectos gráficos"}${n64ConHilos ? " · núcleo con hilos activo" : ""}.` : "La primera carga descarga el juego una vez; después queda disponible en este navegador. El .sav interno se guarda por usuario y juego."} El .sav interno se guarda por usuario y juego.</p><div class="emulator-stage ${esN64 ? "n64-stage" : ""} ${esPsp ? "psp-stage" : ""}"><div id="emulator" class="nes-screen" aria-label="Pantalla del juego"></div><div id="game-loading" class="game-loading" role="status" aria-live="polite"><span class="loading-icon">🎮</span><b>Preparando ${active.platform}</b><small id="loading-detail">Comprobando caché local…</small><div class="loading-track"><i id="loading-bar"></i></div><strong id="loading-percent">0%</strong></div><button class="fullscreen-close" aria-label="Salir de pantalla completa">×</button></div>`;
+        const n64ConHilos = esN64 && window.crossOriginIsolated === true && typeof window.SharedArrayBuffer === "function";
+        gameBox.innerHTML = `<div class="game-topbar"><span class="playing">Jugando · ${active.name}</span><span><button id="gba-fullscreen" class="secondary">⛶ Pantalla completa</button><button id="back" class="secondary">← Catálogo</button></span></div><p class="notice">${esN64 ? `Perfil N64 de máxima fluidez aplicado para todos${n64ConHilos ? " · núcleo con hilos activo" : ""}.` : "La primera carga descarga el juego una vez; después queda disponible en este navegador."} El .sav interno se guarda por usuario y juego.</p><div class="emulator-stage ${esN64 ? "n64-stage" : ""} ${esPsp ? "psp-stage" : ""}"><div id="emulator" class="nes-screen" aria-label="Pantalla del juego"></div><div id="game-loading" class="game-loading" role="status" aria-live="polite"><span class="loading-icon">🎮</span><b>Preparando ${active.platform}</b><small id="loading-detail">Comprobando caché local…</small><div class="loading-track"><i id="loading-bar"></i></div><strong id="loading-percent">0%</strong></div><button class="fullscreen-close" aria-label="Salir de pantalla completa">×</button></div>`;
         await crearSesion(active.id);
         const loading = document.querySelector("#game-loading"), detail = document.querySelector("#loading-detail"), bar = document.querySelector("#loading-bar"), percent = document.querySelector("#loading-percent");
         const actualizarCarga = (texto, ratio = null) => {
@@ -212,30 +211,35 @@
         // PPSSPP y Mupen64Plus pueden usar WASM con hilos si el navegador lo
         // soporta. En N64 esto quita trabajo del hilo visual del teléfono.
         window.EJS_threads = esPsp || n64ConHilos;
-        // Turbo es el predeterminado: conserva la resolución original de N64,
-        // dynarec y GLideN64, pero apaga filtros/copies costosos. Compatible
-        // mantiene los efectos que algunos juegos antiguos pueden necesitar.
-        const n64Turbo = {
+        // Perfil universal N64: conserva framebuffer para que el factor nativo
+        // 1 surta efecto, pero desactiva sus copias y filtros caros. Se ignoran
+        // los ajustes N64 antiguos del navegador para que aplique a todos.
+        const n64Fluido = {
             "mupen64plus-EnableNativeResFactor": "1",
             "mupen64plus-cpucore": "dynamic_recompiler",
             "mupen64plus-rdp-plugin": "gliden64",
+            "mupen64plus-rspmode": "HLE",
+            "mupen64plus-aspect": "4:3",
+            "mupen64plus-43screensize": "320x240",
+            "mupen64plus-169screensize": "640x360",
+            "mupen64plus-ThreadedRenderer": "True",
+            "mupen64plus-HybridFilter": "False",
             "mupen64plus-MultiSampling": "0",
             "mupen64plus-FXAA": "0",
             "mupen64plus-EnableLODEmulation": "False",
-            "mupen64plus-EnableFBEmulation": "False",
+            "mupen64plus-EnableFBEmulation": "True",
             "mupen64plus-EnableCopyColorToRDRAM": "Off",
+            "mupen64plus-EnableCopyDepthToRDRAM": "Off",
+            "mupen64plus-EnableCopyAuxToRDRAM": "False",
+            "mupen64plus-BackgroundMode": "OnePiece",
+            "mupen64plus-EnableHWLighting": "False",
+            "mupen64plus-EnableInaccurateTextureCoordinates": "True",
+            "mupen64plus-EnableNativeResTexrects": "Disabled",
             "mupen64plus-EnableShadersStorage": "True",
             "mupen64plus-EnableLegacyBlending": "True"
         };
-        const n64Compatible = {
-            "mupen64plus-EnableNativeResFactor": "1",
-            "mupen64plus-cpucore": "dynamic_recompiler",
-            "mupen64plus-rdp-plugin": "gliden64",
-            "mupen64plus-MultiSampling": "0",
-            "mupen64plus-FXAA": "0",
-            "mupen64plus-EnableShadersStorage": "True"
-        };
-        window.EJS_defaultOptions = esN64 ? (n64Mode === "compatible" ? n64Compatible : n64Turbo) : {};
+        window.EJS_defaultOptions = esN64 ? n64Fluido : {};
+        window.EJS_disableLocalStorage = esN64;
         // En GBA, SNES, GB y GBC sincroniza el .sav interno al navegador cada minuto.
         window.EJS_fixedSaveInterval = 60000;
         let savRestaurado = false;
@@ -282,12 +286,6 @@
         document.querySelector("#back").onclick = () => salirEmulador(sincronizarSav, romObjectUrl);
         document.querySelector("#gba-fullscreen").onclick = () => alternarPantallaCompletaGba();
         document.querySelector(".fullscreen-close").onclick = salirPantallaCompleta;
-        document.querySelector("#n64-mode")?.addEventListener("click", () => {
-            localStorage.setItem("alexis-n64-mode", n64Mode === "turbo" ? "compatible" : "turbo");
-            // El núcleo lee estas opciones al arrancar; la recarga conserva el
-            // token y el juego actual, sin perder el guardado del usuario.
-            const url = new URL(location.href); url.searchParams.set("game", active.id); location.replace(url.toString());
-        });
     }
     async function alternarPantallaCompletaGba() {
         try {
