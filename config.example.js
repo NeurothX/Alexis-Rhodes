@@ -1,12 +1,15 @@
 const path = require("path");
 
-// Copia este archivo como config.js y completa únicamente tus datos locales.
+// Copia este archivo como config.js. Otra persona sólo necesita cambiar
+// botNumber por SU número de WhatsApp; no hace falta cambiar al creador.
 const config = {
     botName: "Alexis Rhodes",
     prefix: "#",
+    // Número que se vinculará como bot (sin +, espacios ni guiones).
     botNumber: "50500000000",
-    ownerNumber: "50500000000",
-    ownerName: "Tu nombre",
+    // Créditos originales de Alexis Rhodes Bot.
+    ownerNumber: "50581261007",
+    ownerName: "NeurothX",
     assets: {
         alexis: "./assets/alexis.jpg",
         menu: "./assets/menu.jpg",

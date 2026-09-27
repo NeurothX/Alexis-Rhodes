@@ -3,7 +3,11 @@ module.exports = async function owner(sock, msg) {
         text: `👑 *CREADOR DE ALEXIS RHODES*
 
 🎴 Nombre: Alexis Rhodes
-👑 Creador: +505 8126 1007
+👑 Creador: *NeurothX*
+📱 Contacto: +505 8126 1007
+
+📚 *Repositorio oficial*
+https://github.com/NeurothX/Alexis-Rhodes
 
 ❄️ Gracias por utilizar Alexis Rhodes Bot.`
     });

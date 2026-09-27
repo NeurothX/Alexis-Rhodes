@@ -98,7 +98,9 @@ _cada comando puede ser la carta que cambie tu día._
 ┃ 📣 *${p}tagall [mensaje]*   — menciona a todos los participantes
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-👑 *${p}owner*  — conoce al creador
+👑 *${p}owner*  — conoce al creador y el repositorio
+📚 *NeurothX · Alexis Rhodes Bot*
+https://github.com/NeurothX/Alexis-Rhodes
 ❄️ _— Alexis Rhodes · Juega con elegancia, gana con determinación._`;
 
     const candidatos = [config.assets?.menu, "./assets/menu.png", "./assets/menu.jpg"];
