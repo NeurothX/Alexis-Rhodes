@@ -168,8 +168,7 @@
         const memoryGB = Number(navigator.deviceMemory) || 4;
         const cpuThreads = Number(navigator.hardwareConcurrency) || 4;
         const perfilDispositivo = memoryGB >= 8 && cpuThreads >= 8 ? "alto" : memoryGB >= 4 && cpuThreads >= 6 ? "medio" : "ahorro";
-        const n64ConHilos = esN64 && window.crossOriginIsolated === true && typeof window.SharedArrayBuffer === "function";
-        gameBox.innerHTML = `<div class="game-topbar"><span class="playing">Jugando · ${active.name}</span><span><button id="gba-fullscreen" class="secondary">⛶ Pantalla completa</button><button id="back" class="secondary">← Catálogo</button></span></div><p class="notice">${esN64 ? `Perfil N64 de máxima fluidez aplicado para todos${n64ConHilos ? " · núcleo con hilos activo" : ""}.` : "La primera carga descarga el juego una vez; después queda disponible en este navegador."} El .sav interno se guarda por usuario y juego.</p><div class="emulator-stage ${esN64 ? "n64-stage" : ""} ${esPsp ? "psp-stage" : ""}"><div id="emulator" class="nes-screen" aria-label="Pantalla del juego"></div><div id="game-loading" class="game-loading" role="status" aria-live="polite"><span class="loading-icon">🎮</span><b>Preparando ${active.platform}</b><small id="loading-detail">Comprobando caché local…</small><div class="loading-track"><i id="loading-bar"></i></div><strong id="loading-percent">0%</strong></div><button class="fullscreen-close" aria-label="Salir de pantalla completa">×</button></div>`;
+        gameBox.innerHTML = `<div class="game-topbar"><span class="playing">Jugando · ${active.name}</span><span><button id="gba-fullscreen" class="secondary">⛶ Pantalla completa</button><button id="back" class="secondary">← Catálogo</button></span></div><p class="notice">${esN64 ? "Perfil N64 de máxima fluidez aplicado para todos: usa el procesador y GPU del teléfono con el núcleo compatible." : "La primera carga descarga el juego una vez; después queda disponible en este navegador."} El .sav interno se guarda por usuario y juego.</p><div class="emulator-stage ${esN64 ? "n64-stage" : ""} ${esPsp ? "psp-stage" : ""}"><div id="emulator" class="nes-screen" aria-label="Pantalla del juego"></div><div id="game-loading" class="game-loading" role="status" aria-live="polite"><span class="loading-icon">🎮</span><b>Preparando ${active.platform}</b><small id="loading-detail">Comprobando caché local…</small><div class="loading-track"><i id="loading-bar"></i></div><strong id="loading-percent">0%</strong></div><button class="fullscreen-close" aria-label="Salir de pantalla completa">×</button></div>`;
         await crearSesion(active.id);
         const loading = document.querySelector("#game-loading"), detail = document.querySelector("#loading-detail"), bar = document.querySelector("#loading-bar"), percent = document.querySelector("#loading-percent");
         const actualizarCarga = (texto, ratio = null) => {
@@ -208,33 +207,23 @@
         // lentas, el reintento podía terminar mostrando un error de carga.
         window.EJS_DEBUG_XX = true;
         window.EJS_cacheConfig = { enabled: true, cacheMaxSizeMB: perfilDispositivo === "alto" ? 1024 : perfilDispositivo === "medio" ? 512 : 256, cacheMaxAgeMins: 43200 };
-        // PPSSPP y Mupen64Plus pueden usar WASM con hilos si el navegador lo
-        // soporta. En N64 esto quita trabajo del hilo visual del teléfono.
-        window.EJS_threads = esPsp || n64ConHilos;
-        // Perfil universal N64: conserva framebuffer para que el factor nativo
-        // 1 surta efecto, pero desactiva sus copias y filtros caros. Se ignoran
-        // los ajustes N64 antiguos del navegador para que aplique a todos.
+        // PPSSPP usa su núcleo con hilos. Para N64 se usa el núcleo WASM normal:
+        // emplea CPU/GPU reales del móvil sin depender de SharedArrayBuffer,
+        // que algunos navegadores móviles bloquean y dejaba pantalla negra.
+        window.EJS_threads = esPsp;
+        // Perfil universal N64 probado: dinámico + GLideN64 y sin filtros
+        // costosos. No se fuerzan opciones avanzadas que algunas ROMs no
+        // soportan en WebAssembly. Se ignoran los ajustes N64 antiguos para
+        // que este perfil sea igual para todos.
         const n64Fluido = {
             "mupen64plus-EnableNativeResFactor": "1",
             "mupen64plus-cpucore": "dynamic_recompiler",
             "mupen64plus-rdp-plugin": "gliden64",
-            "mupen64plus-rspmode": "HLE",
-            "mupen64plus-aspect": "4:3",
-            "mupen64plus-43screensize": "320x240",
-            "mupen64plus-169screensize": "640x360",
-            "mupen64plus-ThreadedRenderer": "True",
-            "mupen64plus-HybridFilter": "False",
             "mupen64plus-MultiSampling": "0",
             "mupen64plus-FXAA": "0",
             "mupen64plus-EnableLODEmulation": "False",
-            "mupen64plus-EnableFBEmulation": "True",
+            "mupen64plus-EnableFBEmulation": "False",
             "mupen64plus-EnableCopyColorToRDRAM": "Off",
-            "mupen64plus-EnableCopyDepthToRDRAM": "Off",
-            "mupen64plus-EnableCopyAuxToRDRAM": "False",
-            "mupen64plus-BackgroundMode": "OnePiece",
-            "mupen64plus-EnableHWLighting": "False",
-            "mupen64plus-EnableInaccurateTextureCoordinates": "True",
-            "mupen64plus-EnableNativeResTexrects": "Disabled",
             "mupen64plus-EnableShadersStorage": "True",
             "mupen64plus-EnableLegacyBlending": "True"
         };

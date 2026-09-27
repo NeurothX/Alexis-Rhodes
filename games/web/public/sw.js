@@ -1,4 +1,4 @@
-const CACHE = "alexis-games-static-v35";
+const CACHE = "alexis-games-static-v37";
 const STATIC = ["/juego", "/styles.css", "/game-overrides.css", "/app.js"];
 self.addEventListener("install", event => event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(STATIC)).then(() => self.skipWaiting())));
 self.addEventListener("activate", event => event.waitUntil(
