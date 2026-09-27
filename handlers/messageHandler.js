@@ -35,6 +35,30 @@ const config =
 const { estaEncendido } = require("../systems/botState");
 const { revisarAFK, alternarAFK } = require("../systems/afkSystem");
 
+// WhatsApp puede entregar paquetes pendientes justo al reconectar. Alexis sólo
+// ejecuta mensajes recibidos durante esta sesión, y cada ID se procesa una vez.
+const inicioHandler = Date.now();
+const mensajesProcesados = new Map();
+function claveProcesada(msg) { return msg?.key?.remoteJid && msg?.key?.id ? `${msg.key.remoteJid}:${msg.key.id}` : null; }
+function timestampMs(msg) {
+    const raw = msg?.messageTimestamp;
+    const value = Number(typeof raw?.toString === "function" ? raw.toString() : raw);
+    return Number.isFinite(value) && value > 0 ? value * (value < 1e11 ? 1000 : 1) : null;
+}
+function esMensajeActual(msg) {
+    const timestamp = timestampMs(msg);
+    // Se permite un margen pequeño para diferencias de reloj, pero no mensajes
+    // acumulados antes de arrancar/reconectar el bot.
+    return !timestamp || timestamp >= inicioHandler - 15_000;
+}
+function marcarProcesado(msg) {
+    const clave = claveProcesada(msg);
+    if (!clave || mensajesProcesados.has(clave)) return false;
+    mensajesProcesados.set(clave, Date.now());
+    if (mensajesProcesados.size > 2_000) mensajesProcesados.delete(mensajesProcesados.keys().next().value);
+    return true;
+}
+
 
 // ==========================================
 // MANEJAR MENSAJES
@@ -45,22 +69,6 @@ async function manejarMensajes(
     messages,
     type
 ) {
-
-    // ======================================
-    // GUARDAR MENSAJES
-    // ======================================
-
-    for (
-        const msg of messages
-    ) {
-
-        if (!msg) continue;
-
-        if (!msg.message) continue;
-
-        guardarMensaje(msg);
-    }
-
 
     // ======================================
     // IGNORAR HISTORIAL
@@ -94,6 +102,12 @@ async function manejarMensajes(
         if (!msg) continue;
 
         if (!msg.message) continue;
+
+        // Evita comandos repetidos y mensajes viejos restaurados por WhatsApp
+        // cuando el bot se vuelve a conectar.
+        if (!esMensajeActual(msg) || !marcarProcesado(msg)) continue;
+
+        guardarMensaje(msg);
 
 
         // ----------------------------------

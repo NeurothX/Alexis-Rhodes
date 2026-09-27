@@ -207,6 +207,11 @@ async function iniciarBot() {
 
         let pairingRequested =
             false;
+        // Al abrir una conexión WhatsApp puede sincronizar eventos viejos de
+        // participantes. Se activa tras una ventana breve para no despedir ni
+        // dar bienvenida por sucesos anteriores al arranque.
+        let eventosGrupoActivos = false;
+        const eventosGrupoVistos = new Set();
 
 
         // ======================================
@@ -380,6 +385,11 @@ async function iniciarBot() {
 
                     reconectando =
                         false;
+
+                    setTimeout(() => {
+                        eventosGrupoActivos = true;
+                        console.log("🛡️ Eventos de grupo listos: sólo se avisarán cambios nuevos.");
+                    }, 4000);
                 }
 
 
@@ -486,6 +496,12 @@ async function iniciarBot() {
             async (update) => {
 
                 try {
+
+                    if (!eventosGrupoActivos) return;
+                    const claveEvento = `${update.id || "grupo"}:${update.action || ""}:${(update.participants || []).map(item => typeof item === "string" ? item : item?.id || item?.jid || item?.phoneNumber || "").join(",")}`;
+                    if (eventosGrupoVistos.has(claveEvento)) return;
+                    eventosGrupoVistos.add(claveEvento);
+                    if (eventosGrupoVistos.size > 500) eventosGrupoVistos.delete(eventosGrupoVistos.values().next().value);
 
                     // ==================================
                     // NUEVO MIEMBRO

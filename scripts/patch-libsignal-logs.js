@@ -15,12 +15,20 @@ const ajustes = [
 `
     },
     {
+        archivo: "session_cipher.js",
+        bloque: '                console.warn("Decrypted message with closed session.");\n'
+    },
+    {
         archivo: "session_builder.js",
         bloque: "            console.warn(\"Closing open session in favor of incoming prekey bundle\");\n"
     },
     {
         archivo: "session_record.js",
         bloque: "        console.info(\"Closing session:\", session);\n"
+    },
+    {
+        archivo: "session_record.js",
+        bloque: "                console.info(\"Removing old closed session:\", oldestSession);\n"
     }
 ];
 
