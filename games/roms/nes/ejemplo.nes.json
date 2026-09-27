@@ -1,0 +1,7 @@
+{
+  "name": "Nombre visible del juego",
+  "description": "Descripción breve del juego.",
+  "credits": "Autor, proyecto o licencia del juego",
+  "rightsHolder": "Titular o licencia que permite distribuirlo",
+  "licenseConfirmed": true
+}

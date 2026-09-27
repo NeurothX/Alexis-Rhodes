@@ -1,0 +1,53 @@
+# Dependencias y archivos de sistema
+node_modules/
+npm-debug.log*
+*.log
+.DS_Store
+Thumbs.db
+
+# Caché regenerable de imágenes anime
+assets/anime-cache/
+
+# Autenticación de WhatsApp: nunca se comparte
+session/
+creds.json
+*auth*.json
+
+# Datos privados y progreso de los jugadores
+database/*.json
+!database/.gitkeep
+games/data/games-db.json
+games/data/games-db.json.tmp
+games/data/instance-secret.txt
+games/data/users/
+games/data/emulator-saves/
+*.sav
+*.srm
+*.state
+
+# ROMs y copias locales: no se suben al repositorio
+games/roms/**/*.nes
+games/roms/**/*.sfc
+games/roms/**/*.smc
+games/roms/**/*.gb
+games/roms/**/*.gbc
+games/roms/**/*.gba
+games/roms/**/*.n64
+games/roms/**/*.z64
+games/roms/**/*.v64
+games/roms/**/*.md
+games/roms/**/*.gen
+games/roms/**/*.iso
+games/roms/**/*.cso
+backups/
+
+# Herramientas y dependencias que se vuelven a instalar
+tools/*.exe
+tools/*.tmp
+games/vendor/
+
+# Configuración local opcional
+config.js
+.env
+.env.*
+!.env.example

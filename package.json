@@ -1,0 +1,21 @@
+{
+  "name": "Alexis-Rhodes",
+  "version": "1.0.0",
+  "description": "Alexis Rhodes - WhatsApp Bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "cache:anime": "node precache-anime.js",
+    "covers:install": "node scripts/install-game-covers.js",
+    "assets:achievement-sound": "node scripts/create-achievement-sound.js",
+    "postinstall": "node scripts/patch-libsignal-logs.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.24",
+    "jsnes": "^2.1.0",
+    "openai": "^7.17.0",
+    "pino": "latest",
+    "sharp": "^0.35.4",
+    "wa-sticker-formatter": "^4.4.4"
+  }
+}

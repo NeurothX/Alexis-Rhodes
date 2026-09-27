@@ -1,0 +1,9 @@
+{
+  "id": "estrella-fugaz",
+  "name": "Estrella Fugaz",
+  "description": "Mueve la estrella por la pantalla usando las flechas o la cruceta del mando.",
+  "credits": "Desarrollo original para Alexis Rhodes.",
+  "rightsHolder": "Tu instalación de Alexis Rhodes",
+  "licenseConfirmed": true,
+  "enabled": true
+}
