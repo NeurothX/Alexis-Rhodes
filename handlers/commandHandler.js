@@ -61,6 +61,7 @@ const tagallCmd = require("../commands/admin/tagall");
 const socialCmd = require("../commands/social/social");
 const juegosCmd = require("../commands/juegos");
 const arcadeProgressCmd = require("../commands/arcade-progress");
+const repoCmd = require("../commands/repo");
 
 // ==========================================
 // COMANDOS
@@ -80,6 +81,9 @@ const comandos = {
     tagall: tagallCmd,
     todos: tagallCmd,
     owner: ownerCmd,
+    repo: repoCmd,
+    github: repoCmd,
+    repositorio: repoCmd,
 
     kick: kickCmd,
     add: addCmd,

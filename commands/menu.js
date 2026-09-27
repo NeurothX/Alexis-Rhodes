@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const config = require("../config");
+const repo = require("./repo");
 
 module.exports = async function menu(sock, msg) {
     const p = config.prefix || "#";
@@ -99,8 +100,7 @@ _cada comando puede ser la carta que cambie tu día._
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 👑 *${p}owner*  — conoce al creador y el repositorio
-📚 *NeurothX · Alexis Rhodes Bot*
-https://github.com/NeurothX/Alexis-Rhodes
+📚 *${p}repo* — abre el repositorio oficial de NeurothX
 ❄️ _— Alexis Rhodes · Juega con elegancia, gana con determinación._`;
 
     const candidatos = [config.assets?.menu, "./assets/menu.png", "./assets/menu.jpg"];
@@ -108,6 +108,10 @@ https://github.com/NeurothX/Alexis-Rhodes
         .filter(Boolean)
         .map(archivo => path.resolve(archivo))
         .find(archivo => fs.existsSync(archivo));
-    if (ruta) return sock.sendMessage(msg.key.remoteJid, { image: fs.readFileSync(ruta), caption: texto });
-    await sock.sendMessage(msg.key.remoteJid, { text: texto });
+    if (ruta) await sock.sendMessage(msg.key.remoteJid, { image: fs.readFileSync(ruta), caption: texto });
+    else await sock.sendMessage(msg.key.remoteJid, { text: texto });
+
+    // WhatsApp no admite enlaces personalizados dentro de una palabra ni los
+    // vuelve siempre tocables en una imagen. Como texto independiente sí.
+    await repo.enviar(sock, msg.key.remoteJid);
 };
